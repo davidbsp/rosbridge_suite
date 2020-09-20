@@ -42,6 +42,8 @@ class Publish(Capability):
     publish_msg_fields = [(True, "topic", string_types)]
 
     topics_glob = None
+    cur_secs = 0
+    cur_nsecs = 0
 
     def __init__(self, protocol):
         # Call superclas constructor
@@ -84,6 +86,18 @@ class Publish(Capability):
 
         # Get the message if one was provided
         msg = message.get("msg", {})
+
+       if topic == "/clock":
+            secs=msg.get("clock", {}).get("secs", {})
+            nsecs=msg.get("clock", {}).get("nsecs", {})
+
+            #make sure that clock msgs from the past are not published:
+            if self.cur_secs>secs or (self.cur_secs==secs and self.cur_nsecs>=nsecs):
+                return # ignore clock msg with timestamp in the past
+            else:
+                #save current msg time
+                self.cur_secs=secs
+                self.cur_nsecs=nsecs         
 
         # Publish the message
         manager.publish(client_id, topic, msg, latch=latch, queue_size=queue_size)

@@ -87,7 +87,7 @@ class Publish(Capability):
         # Get the message if one was provided
         msg = message.get("msg", {})
 
-       if topic == "/clock":
+        if topic == "/clock":
             secs=msg.get("clock", {}).get("secs", {})
             nsecs=msg.get("clock", {}).get("nsecs", {})
 
